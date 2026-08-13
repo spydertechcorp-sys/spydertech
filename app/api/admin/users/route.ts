@@ -93,7 +93,7 @@ export async function POST(req: NextRequest) {
         action: 'CREATE_USER',
         resource: 'User',
         resourceId: user.id,
-        details: `Created user ${user.email}`,
+        details: { message: `Created user ${user.email}` },
       })
 
       return NextResponse.json({ user })
