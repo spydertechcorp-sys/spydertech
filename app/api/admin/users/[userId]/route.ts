@@ -44,7 +44,7 @@ export async function PATCH(req: NextRequest, { params }: { params: { userId: st
         action: 'UPDATE_USER',
         resource: 'User',
         resourceId: user.id,
-        details: `Updated user ${user.email}`,
+        details: { message: `Updated user ${user.email}` },
       })
 
       return NextResponse.json({ user })
