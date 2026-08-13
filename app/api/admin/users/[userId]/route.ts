@@ -71,7 +71,7 @@ export async function DELETE(req: NextRequest, { params }: { params: { userId: s
         action: 'DELETE_USER',
         resource: 'User',
         resourceId: params.userId,
-        details: `Deleted user ${params.userId}`,
+        details: { message: `Deleted user ${params.userId}` },
       })
 
       return NextResponse.json({ success: true })
