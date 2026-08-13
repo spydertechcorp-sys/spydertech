@@ -33,7 +33,7 @@ export default async function AdminPlansPage() {
               <div className="mt-auto pt-4 border-t border-black/5 dark:border-white/5 flex justify-between items-end">
                 <span className="font-heading font-bold text-2xl">${plan.price.toLocaleString()}</span>
                 <span className="font-mono text-[10px] uppercase tracking-widest opacity-50 px-2 py-1 bg-black/5 dark:bg-white/10 rounded-md">
-                  {plan.interval}
+                  MENSUAL
                 </span>
               </div>
             </div>
