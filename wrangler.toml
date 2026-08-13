@@ -1,0 +1,15 @@
+name = "spydertech-os"
+compatibility_date = "2024-03-20"
+compatibility_flags = ["nodejs_compat"]
+pages_build_output_dir = ".vercel/output/static"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "spydertech-db"
+database_id = "8fd55354-9de4-4beb-a413-306df6d786fb"
+
+[env.production]
+name = "spydertech-os"
+
+[env.preview]
+name = "spydertech-os-preview"

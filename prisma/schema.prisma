@@ -1,0 +1,321 @@
+// SpyderTech Business OS — Database Schema
+// PostgreSQL (development fallback: SQLite)
+
+generator client {
+  provider = "prisma-client-js"
+  previewFeatures = ["driverAdapters"]
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================================
+// CORE: AUTH & USERS (GLOBAL)
+// ============================================================
+
+model User {
+  id                String    @id @default(cuid())
+  email             String    @unique
+  emailVerified     DateTime?
+  name              String?
+  username          String?   @unique
+  passwordHash      String?
+  twoFactorCode     String?
+  image             String?
+  phone             String?
+  roleId            String?
+  role              Role?     @relation(fields: [roleId], references: [id])
+  status            String    @default("ACTIVE") // ACTIVE, SUSPENDED
+  loginAttempts     Int       @default(0)
+  lockedUntil       DateTime?
+  lastLogin         DateTime?
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  // Global Relations
+  sessions          Session[]
+  auditLogs         AuditLog[]
+  
+  // Tenant Relations
+  businesses        BusinessMember[]
+  ownedBusinesses   Business[]       @relation("BusinessOwner")
+
+  @@map("users")
+}
+
+model Role {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  label       String
+  isSystem    Boolean  @default(false)
+  createdAt   DateTime @default(now())
+
+  users       User[]
+
+  @@map("roles")
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  userId       String
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  token        String   @unique
+  expiresAt    DateTime
+  createdAt    DateTime @default(now())
+
+  @@map("sessions")
+}
+
+// ============================================================
+// CORE: TENANTS (BUSINESSES)
+// ============================================================
+
+model Business {
+  id          String   @id @default(cuid())
+  slug        String   @unique // Ej. "pepitos"
+  name        String
+  description String?
+  logo        String?
+  coverImage  String?
+  
+  // Contact & Location
+  phone       String?
+  whatsapp    String?
+  email       String?
+  address     String?
+  city        String?
+  
+  // Social
+  instagram   String?
+  facebook    String?
+  website     String?
+
+  // Design Engine Settings
+  theme       String   @default("MODERN") // MODERN, CINEMATIC, LUXURY, NEON, MINIMAL, STREET, PLAYFUL
+  primaryColor String  @default("#7DFF6B")
+  accentColor  String  @default("#050507")
+  animationLevel String @default("BALANCED") // MINIMAL, BALANCED, CINEMATIC
+  introEnabled Boolean @default(true)
+  introText   String?  // Ej: "Hecho para comer. Diseñado para recordar."
+  videoUrl    String?  // Video background URL
+  
+  // Status & Subscription
+  status      String   @default("SETUP") // DRAFT, SETUP, ACTIVE, SUSPENDED, EXPIRED
+  planId      String?
+  plan        Plan?    @relation(fields: [planId], references: [id])
+  
+  // Ownership
+  ownerId     String
+  owner       User     @relation("BusinessOwner", fields: [ownerId], references: [id])
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  members     BusinessMember[]
+  categories  Category[]
+  products    Product[]
+  menus       Menu[]
+  promotions  Promotion[]
+  orders      Order[]
+  settings    BusinessSetting[]
+
+  @@map("businesses")
+}
+
+model BusinessMember {
+  id         String   @id @default(cuid())
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  businessId String
+  business   Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  role       String   @default("STAFF") // OWNER, MANAGER, EDITOR, STAFF, VIEWER
+  status     String   @default("ACTIVE")
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@unique([userId, businessId])
+  @@map("business_members")
+}
+
+// ============================================================
+// BUSINESS ENTITIES (ISOLATED BY TENANT)
+// ============================================================
+
+model Category {
+  id          String   @id @default(cuid())
+  businessId  String
+  business    Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  name        String
+  slug        String
+  description String?
+  image       String?
+  isActive    Boolean  @default(true)
+  sortOrder   Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  products    Product[]
+  menuItems   MenuItem[]
+
+  @@unique([businessId, slug])
+  @@map("categories")
+}
+
+model Product {
+  id              String   @id @default(cuid())
+  businessId      String
+  business        Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  categoryId      String?
+  category        Category? @relation(fields: [categoryId], references: [id])
+  name            String
+  slug            String
+  description     String?
+  longDescription String?
+  image           String?
+  price           Float
+  priceOld        Float?
+  isAvailable     Boolean  @default(true)
+  isFeatured      Boolean  @default(false)
+  badge           String?  // POPULAR, NUEVO, etc.
+  sortOrder       Int      @default(0)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  orderItems      OrderItem[]
+  menuItems       MenuItem[]
+  promotions      Promotion[]
+
+  @@unique([businessId, slug])
+  @@map("products")
+}
+
+model Menu {
+  id          String   @id @default(cuid())
+  businessId  String
+  business    Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  title       String?  @default("Nuestro Menú")
+  isPublished Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  items       MenuItem[]
+
+  @@map("menus")
+}
+
+model MenuItem {
+  id          String   @id @default(cuid())
+  menuId      String
+  menu        Menu     @relation(fields: [menuId], references: [id], onDelete: Cascade)
+  productId   String
+  product     Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  categoryId  String?
+  category    Category? @relation(fields: [categoryId], references: [id])
+  sortOrder   Int      @default(0)
+
+  @@map("menu_items")
+}
+
+model Promotion {
+  id          String   @id @default(cuid())
+  businessId  String
+  business    Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  name        String
+  description String?
+  image       String?
+  discount    Float?
+  discountType String  @default("PERCENTAGE") // PERCENTAGE, FIXED
+  productId   String?
+  product     Product? @relation(fields: [productId], references: [id])
+  startsAt    DateTime?
+  endsAt      DateTime?
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+
+  @@map("promotions")
+}
+
+model Order {
+  id           String      @id @default(cuid())
+  businessId   String
+  business     Business    @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  orderNumber  String      @unique @default(cuid())
+  customerName String?
+  customerPhone String?
+  status       String      @default("PENDING") // PENDING, CONFIRMED, DELIVERED, CANCELLED
+  paymentStatus String     @default("PENDING")
+  total        Float       @default(0)
+  notes        String?
+  type         String      @default("WHATSAPP") // WHATSAPP, DINE_IN, DELIVERY
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+
+  items        OrderItem[]
+
+  @@map("orders")
+}
+
+model OrderItem {
+  id        String  @id @default(cuid())
+  orderId   String
+  order     Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productId String?
+  product   Product? @relation(fields: [productId], references: [id])
+  name      String
+  quantity  Int     @default(1)
+  price     Float
+  total     Float
+
+  @@map("order_items")
+}
+
+model BusinessSetting {
+  id         String   @id @default(cuid())
+  businessId String
+  business   Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  key        String
+  value      String?
+  type       String   @default("STRING")
+
+  @@unique([businessId, key])
+  @@map("business_settings")
+}
+
+// ============================================================
+// PLATFORM LEVEL (SPYDERTECH SAAS)
+// ============================================================
+
+model Plan {
+  id          String   @id @default(cuid())
+  name        String
+  slug        String   @unique
+  description String?
+  price       Float
+  currency    String   @default("COP")
+  isPopular   Boolean  @default(false)
+  isActive    Boolean  @default(true)
+  features    String?  // JSON string (max_products, ai_enabled, analytics, etc)
+  createdAt   DateTime @default(now())
+  
+  businesses  Business[]
+
+  @@map("plans")
+}
+
+model AuditLog {
+  id         String   @id @default(cuid())
+  userId     String?
+  user       User?    @relation(fields: [userId], references: [id])
+  businessId String?  // To filter logs per tenant
+  action     String
+  resource   String?
+  resourceId String?
+  details    String?
+  result     String   @default("SUCCESS")
+  createdAt  DateTime @default(now())
+
+  @@map("audit_logs")
+}

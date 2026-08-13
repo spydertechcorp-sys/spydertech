@@ -1,0 +1,2 @@
+import Link from "next/link"
+export default function Blog(){return <main className="site-shell"><section className="blog-page"><p className="eyebrow">INSIGHTS</p><h1>Ideas para operar<br/><em>con más intención.</em></h1><article><small>PRÓXIMAMENTE</small><h2>Este espacio editorial está preparado para compartir decisiones, sistemas y aprendizajes.</h2><p>Los artículos publicados se administrarán desde el centro de control.</p><Link href="/">Volver al inicio →</Link></article></section></main>}
