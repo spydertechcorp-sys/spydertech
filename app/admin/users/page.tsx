@@ -1,3 +1,4 @@
+export const dynamic = 'force-dynamic';
 import { prisma } from '@/lib/db'
 import CreateUser from '@/components/admin/CreateUser'
 import EditUser from '@/components/admin/EditUser'

@@ -1,3 +1,4 @@
+export const dynamic = 'force-dynamic';
 import { prisma } from '@/lib/db'
 import FastOnboarding from '@/components/admin/FastOnboarding'
 
