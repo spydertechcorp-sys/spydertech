@@ -14,7 +14,6 @@
     "seed": "tsx prisma/seed.ts"
   },
   "dependencies": {
-    "@cloudflare/next-on-pages": "^1.13.16",
     "@prisma/adapter-d1": "^7.9.1",
     "@prisma/client": "^5.14.0",
     "@types/bcryptjs": "^2.4.6",
