@@ -30,10 +30,6 @@ export const metadata: Metadata = {
     title: 'SpyderTech — BUILD. GROW. PROTECT.',
     description: 'Digital Growth Company. Tecnología, Marketing, Marca y Estrategia Empresarial.',
   },
-  icons: {
-    icon: '/favicon.svg',
-    apple: '/apple-touch-icon.png',
-  },
 }
 
 export const viewport: Viewport = {

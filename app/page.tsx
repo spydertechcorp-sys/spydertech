@@ -189,55 +189,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ─── EQUIPO / FOUNDERS ─── */}
-      <section className="py-24 px-6 bg-primary transition-colors duration-300 relative">
-        <div className="max-w-7xl mx-auto">
-          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-heading font-bold mb-4">Mentes Detrás de SpyderTech</h2>
-            <p className="text-secondary text-lg max-w-2xl mx-auto">Un equipo fundador interdisciplinario dedicado a revolucionar los ecosistemas digitales.</p>
-          </motion.div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {[
-              { 
-                name: 'Moisés García', 
-                role: 'Tecnología y Estrategia', 
-                avatar: 'M',
-                desc: 'Lidera la visión tecnológica y estratégica, impulsando la innovación orientada al crecimiento de los negocios.'
-              },
-              { 
-                name: 'Beatriz Solano', 
-                role: 'Estrategia y Dirección', 
-                avatar: 'B',
-                desc: 'Convierte oportunidades de negocio en soluciones sostenibles y competitivas con su amplia experiencia en gestión.'
-              },
-              { 
-                name: 'Camila Gómez', 
-                role: 'Empresarial y Jurídica', 
-                avatar: 'C',
-                desc: 'Integra la perspectiva legal, acompañando los procesos que requieren una visión estructurada para la expansión.'
-              },
-            ].map((member, i) => (
-              <motion.div 
-                key={member.name}
-                custom={i} 
-                initial="hidden" 
-                whileInView="visible" 
-                viewport={{ once: true }} 
-                variants={fadeUp} 
-                className="flex flex-col items-center text-center p-8 bg-secondary rounded-2xl border border-subtle hover:border-accent/30 hover:shadow-lg transition-all duration-300 group"
-              >
-                <div className="w-20 h-20 rounded-full bg-accent/10 text-accent font-heading font-bold text-3xl flex items-center justify-center mb-6 border border-accent/20 group-hover:scale-110 transition-transform duration-500">
-                  {member.avatar}
-                </div>
-                <h3 className="font-heading font-bold text-xl mb-1 text-primary">{member.name}</h3>
-                <p className="font-mono text-[10px] uppercase tracking-widest text-accent font-bold mb-4">{member.role}</p>
-                <p className="text-secondary text-sm leading-relaxed">{member.desc}</p>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
 
       {/* ─── PLANES ─── */}
       <section id="planes" className="py-24 px-6 bg-primary transition-colors duration-300">
